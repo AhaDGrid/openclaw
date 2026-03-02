@@ -9,6 +9,7 @@ import {
   ensureApiKeyFromOptionEnvOrPrompt,
   normalizeTokenProviderInput,
 } from "./auth-choice.apply-helpers.js";
+import { applyAuthChoiceDgrid } from "./auth-choice.apply.dgrid.js";
 import { applyAuthChoiceHuggingface } from "./auth-choice.apply.huggingface.js";
 import type { ApplyAuthChoiceParams, ApplyAuthChoiceResult } from "./auth-choice.apply.js";
 import { applyAuthChoiceOpenRouter } from "./auth-choice.apply.openrouter.js";
@@ -83,6 +84,7 @@ import { OPENCODE_ZEN_DEFAULT_MODEL } from "./opencode-zen-model-default.js";
 import { detectZaiEndpoint } from "./zai-endpoint-detect.js";
 
 const API_KEY_TOKEN_PROVIDER_AUTH_CHOICE: Record<string, AuthChoice> = {
+  dgrid: "dgrid-api-key",
   openrouter: "openrouter-api-key",
   litellm: "litellm-api-key",
   "vercel-ai-gateway": "ai-gateway-api-key",
@@ -409,6 +411,10 @@ export async function applyAuthChoiceApiProviders(
 
   if (authChoice === "openrouter-api-key") {
     return applyAuthChoiceOpenRouter(params);
+  }
+
+  if (authChoice === "dgrid-api-key") {
+    return applyAuthChoiceDgrid(params);
   }
 
   if (authChoice === "litellm-api-key") {

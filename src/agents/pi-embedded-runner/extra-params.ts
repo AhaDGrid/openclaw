@@ -136,7 +136,7 @@ function createStreamFnWithExtraParams(
   // runtime the full object is forwarded — enabling allow_fallbacks,
   // data_collection, ignore, sort, quantizations, etc.
   const providerRouting =
-    provider === "openrouter" &&
+    (provider === "openrouter" || provider === "dgrid") &&
     extraParams.provider != null &&
     typeof extraParams.provider === "object"
       ? (extraParams.provider as Record<string, unknown>)
@@ -434,7 +434,11 @@ function createAnthropicBetaHeadersWrapper(
 }
 
 function isOpenRouterAnthropicModel(provider: string, modelId: string): boolean {
-  return provider.toLowerCase() === "openrouter" && modelId.toLowerCase().startsWith("anthropic/");
+  const normalizedProvider = provider.toLowerCase();
+  return (
+    (normalizedProvider === "openrouter" || normalizedProvider === "dgrid") &&
+    modelId.toLowerCase().startsWith("anthropic/")
+  );
 }
 
 type PayloadMessage = {
@@ -770,7 +774,7 @@ export function applyExtraParamsToAgent(
     agent.streamFn = createSiliconFlowThinkingWrapper(agent.streamFn);
   }
 
-  if (provider === "openrouter") {
+  if (provider === "openrouter" || provider === "dgrid") {
     log.debug(`applying OpenRouter app attribution headers for ${provider}/${modelId}`);
     // "auto" is a dynamic routing model — we don't know which underlying model
     // OpenRouter will select, and it may be a reasoning-required endpoint.

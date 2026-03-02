@@ -166,6 +166,12 @@ const OPENROUTER_DEFAULT_COST = {
   cacheWrite: 0,
 };
 
+const DGRID_BASE_URL = OPENROUTER_BASE_URL;
+const DGRID_DEFAULT_MODEL_ID = OPENROUTER_DEFAULT_MODEL_ID;
+const DGRID_DEFAULT_CONTEXT_WINDOW = OPENROUTER_DEFAULT_CONTEXT_WINDOW;
+const DGRID_DEFAULT_MAX_TOKENS = OPENROUTER_DEFAULT_MAX_TOKENS;
+const DGRID_DEFAULT_COST = OPENROUTER_DEFAULT_COST;
+
 const VLLM_BASE_URL = "http://127.0.0.1:8000/v1";
 const VLLM_DEFAULT_CONTEXT_WINDOW = 128000;
 const VLLM_DEFAULT_MAX_TOKENS = 8192;
@@ -809,6 +815,24 @@ function buildOpenrouterProvider(): ProviderConfig {
   };
 }
 
+function buildDgridProvider(): ProviderConfig {
+  return {
+    baseUrl: DGRID_BASE_URL,
+    api: "openai-completions",
+    models: [
+      {
+        id: DGRID_DEFAULT_MODEL_ID,
+        name: "Dgrid Auto",
+        reasoning: false,
+        input: ["text", "image"],
+        cost: DGRID_DEFAULT_COST,
+        contextWindow: DGRID_DEFAULT_CONTEXT_WINDOW,
+        maxTokens: DGRID_DEFAULT_MAX_TOKENS,
+      },
+    ],
+  };
+}
+
 async function buildVllmProvider(params?: {
   baseUrl?: string;
   apiKey?: string;
@@ -1088,6 +1112,13 @@ export async function resolveImplicitProviders(params: {
     resolveApiKeyFromProfiles({ provider: "openrouter", store: authStore });
   if (openrouterKey) {
     providers.openrouter = { ...buildOpenrouterProvider(), apiKey: openrouterKey };
+  }
+
+  const dgridKey =
+    resolveEnvApiKeyVarName("dgrid") ??
+    resolveApiKeyFromProfiles({ provider: "dgrid", store: authStore });
+  if (dgridKey) {
+    providers.dgrid = { ...buildDgridProvider(), apiKey: dgridKey };
   }
 
   const nvidiaKey =
